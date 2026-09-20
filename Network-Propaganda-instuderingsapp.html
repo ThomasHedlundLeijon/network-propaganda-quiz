@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network Propaganda — instuderingsapp</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#0E0F12;
+  --panel:#17181C;
+  --panel2:#1D1F24;
+  --line:#2A2C32;
+  --ink:#F0EFEA;
+  --ink-soft:#9B9EA6;
+  --teal:#5FB3B3;
+  --teal-dim:#2E4A4A;
+  --amber:#E0A458;
+  --amber-dim:#4A3B24;
+  --red:#C4544A;
+  --serif:'Oswald', sans-serif;
+  --sans:'Inter', -apple-system, sans-serif;
+  --radius:2px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);}
+h1,h2,h3{font-family:var(--serif);font-weight:600;text-transform:none;letter-spacing:.2px;margin:0;}
+p{line-height:1.6;}
+button{font-family:var(--sans);cursor:pointer;}
+
+header{padding:28px 24px 20px;border-bottom:1px solid var(--line);}
+.eyebrow{color:var(--amber);font-family:var(--serif);font-size:13px;letter-spacing:.5px;margin-bottom:6px;}
+header h1{font-size:30px;line-height:1.15;max-width:640px;}
+header .sub{color:var(--ink-soft);font-size:14.5px;margin-top:10px;max-width:640px;}
+header .meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:13px;}
+header .meta a{color:var(--teal);text-decoration:none;border-bottom:1px solid var(--teal-dim);}
+header .meta a:hover{border-bottom-color:var(--teal);}
+
+nav{display:flex;gap:2px;padding:0 24px;border-bottom:1px solid var(--line);background:var(--panel);overflow-x:auto;}
+nav button{background:transparent;border:none;border-bottom:3px solid transparent;padding:14px 18px;font-family:var(--serif);font-size:15px;color:var(--ink-soft);white-space:nowrap;}
+nav button.active{color:var(--ink);border-bottom-color:var(--amber);}
+
+main{max-width:760px;margin:0 auto;padding:32px 24px 80px;}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
+.hint{color:var(--ink-soft);font-size:13.5px;margin-top:-4px;margin-bottom:18px;}
+
+/* flashcards */
+.card-wrap{perspective:1200px;height:280px;margin-bottom:18px;}
+.card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s;cursor:pointer;}
+.card.flipped{transform:rotateY(180deg);}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;padding:28px;text-align:center;}
+.face.front{background:var(--panel2);}
+.face.back{background:var(--teal-dim);transform:rotateY(180deg);border-color:var(--teal);}
+.face .label{position:absolute;top:14px;left:16px;font-size:11.5px;color:var(--ink-soft);font-family:var(--serif);letter-spacing:.5px;}
+.face .txt{font-size:19px;line-height:1.4;}
+.face.front .txt{font-family:var(--serif);font-weight:500;}
+.card-nav{display:flex;justify-content:space-between;align-items:center;}
+.btn{padding:10px 16px;border-radius:var(--radius);border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:14px;}
+.btn:hover{border-color:var(--ink-soft);}
+.btn.primary{background:var(--amber);color:#241a0c;border-color:var(--amber);font-weight:600;}
+.btn.primary:hover{background:#eab26b;}
+.progress{color:var(--ink-soft);font-size:13px;font-family:var(--serif);}
+
+/* quiz */
+.q-progress{color:var(--ink-soft);font-size:13px;font-family:var(--serif);margin-bottom:10px;}
+.q-text{font-size:19px;margin-bottom:18px;line-height:1.4;}
+.opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:9px;background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);color:var(--ink);font-size:15px;}
+.opt:hover{border-color:var(--ink-soft);}
+.opt.correct{background:var(--teal-dim);border-color:var(--teal);}
+.opt.wrong{background:#3A2422;border-color:var(--red);}
+.explain{margin-top:16px;padding:14px 16px;background:var(--panel2);border-left:3px solid var(--amber);font-size:14px;color:var(--ink-soft);border-radius:var(--radius);}
+.score-box{text-align:center;padding:20px 0;}
+.score-box .big{font-family:var(--serif);font-size:52px;color:var(--amber);}
+
+/* diagrams */
+.diagram-panel svg{width:100%;height:auto;}
+.diagram-caption{color:var(--ink-soft);font-size:13.5px;margin-top:12px;}
+
+footer{text-align:center;color:var(--ink-soft);font-size:12.5px;padding:20px;border-top:1px solid var(--line);}
+footer a{color:var(--teal);}
+
+@media(max-width:600px){
+  .card-wrap{height:340px;}
+  header h1{font-size:24px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">SVAP11 · Grupp 5 · Instuderingsapp</div>
+  <h1>Network Propaganda</h1>
+  <p class="sub">Manipulation, Disinformation, and Radicalization in American Politics — Yochai Benkler, Robert Faris &amp; Hal Roberts (Oxford University Press, 2018)</p>
+  <div class="meta">
+    <a href="https://academic.oup.com/book/26406" target="_blank" rel="noopener">Läs boken gratis (open access, Oxford Academic)</a>
+    <a href="https://www.youtube.com/live/A4NUM-nCGto" target="_blank" rel="noopener">Boklanseringen på video (Columbia Journalism School, 2018)</a>
+  </div>
+</header>
+
+<nav id="tabs">
+  <button data-tab="cards" class="active">Flashcards</button>
+  <button data-tab="quiz">Quiz</button>
+  <button data-tab="diagram">Begreppskartor</button>
+</nav>
+
+<main id="main"></main>
+
+<footer>
+  Instuderingsapp byggd för Vaksam-gruppens SVAP11-uppgift · innehållet bygger på boken samt dess öppet tillgängliga sammanfattningar — inte en fullständig återgivning av verket.
+</footer>
+
+<script>
+const CARDS = [
+  {front:"Vad är \u201cnätverkspropaganda\u201d (network propaganda)?", back:"Det sätt på vilket ett medieekosystems arkitektur — vilka källor som länkar till och citerar varandra — gör ekosystemet mer eller mindre mottagligt för att sprida manipulation och lögner."},
+  {front:"Vad menas med \u201cepistemisk kris\u201d i boken?", back:"Ett tillstånd där allmänheten inte längre delar en gemensam verklighetsuppfattning, vilket underminerar den offentliga debatten och i förlängningen demokratin."},
+  {front:"Beskriv \u201cpropagandans återkopplingsloop\u201d.", back:"Medieutlägg och eliter bekräftar publikens redan existerande föreställningar och varnar samtidigt för att andra medier är partiska. Publiken sänker då sitt förtroende för andra källor, vilket gör dem ännu mer mottagliga för de bekräftande källorna — loopen förstärker sig själv."},
+  {front:"Vad är \u201casymmetrisk polarisering\u201d enligt boken?", back:"Höger-ekosystemet (Breitbart, Fox News, talkradio) är starkt isolerat och självrefererande, medan vänster- och centermedier är tätt sammanlänkade med varandra och med faktagranskande institutioner."},
+  {front:"Hur definierar boken \u201cbullshit\u201d?", back:"Kommunikation från aktörer som inte bryr sig om huruvida innehållet är sant — bara om det tjänar deras politiska eller ekonomiska syfte."},
+  {front:"Vad avfärdar Benkler, Faris & Roberts som huvudorsak till 2016 års \u201cpost-truth\u201d-läge?", back:"Att ny teknik och utländska aktörer (t.ex. ryska bots och trollfabriker) ensamma orsakade situationen. De menar istället att årtionden av institutionell och politisk utveckling skapat en strukturellt asymmetrisk medieekosystem."},
+  {front:"Vilket kapitel analyserar Breitbart och Trumpkampanjen?", back:"Kapitel 4, \u201cImmigration and Islamophobia: Breitbart and the Trump Party\u201d, som visar hur invandringsfrågan blev ett nav för höger-ekosystemet."},
+  {front:"Vad handlar kapitlet \u201cThe Fox Diet\u201d om?", back:"Hur Fox News, med programledare som Hannity och Carlson, blev en central del av Trumps personliga propagandanätverk, bland annat i attackerna mot underrättelsetjänsten."},
+  {front:"Vilken tidsperiod täcker studien?", back:"Från valcykelns start i april 2015 fram till ett år efter Trumps tillträde som president — analysen bygger på miljontals nyhetsartiklar samt delningar på Twitter och Facebook."},
+  {front:"Vad menar författarna krävs för att bryta propagandaloopen?", back:"Inte enbart tekniska lösningar, utan institutionell och politisk förändring — de nämner uttryckligen att en serie valnederlag för höger-ekosystemets aktörer sannolikt krävs."},
+  {front:"Vem är Yochai Benkler?", back:"Professor vid Harvard Law School och medgrundare av Berkman Klein Center for Internet and Society — en av bokens tre författare."},
+  {front:"Vad är särskilt med bokens tillgänglighet?", back:"Den är öppet tillgänglig (open access) under en CC BY-NC-ND 4.0-licens och kan läsas gratis via Oxford Academic."},
+  {front:"Vilket evenemang kommer YouTube-klippet ifrån?", back:"En boklanseringspanel på Columbia Journalism Schools Tow Center for Digital Journalism (2018), med Craig Silverman (BuzzFeed News), Emily Bell (Tow Center) och Yochai Benkler."},
+  {front:"Vad handlar \u201cMammon's Algorithm\u201d om?", back:"Ett avsnitt om hur Facebooks affärsmodell — annonser och klickbete — förstärker spridningen av manipulativt och polariserande innehåll."}
+];
+
+const QUIZ = [
+  {q:"Vad är enligt Benkler, Faris & Roberts huvudorsaken till \u201cpost-truth\u201d-läget i amerikansk politik?",
+   opts:["Ryska hackare och botarméer","Facebooks algoritmer ensamma","Årtionden av institutionell och politisk utveckling som skapat en asymmetriskt polariserad medieekosystem","Enskilda \u201cfake news\u201d-entreprenörer"],
+   correct:2, explain:"Boken utmanar just tanken att teknik eller utländska aktörer räcker som förklaring — den pekar på en djupare, decennielång strukturell utveckling."},
+  {q:"Vad kännetecknar det högerorienterade medieekosystemet jämfört med vänster/center, enligt boken?",
+   opts:["Det är mer isolerat och självbekräftande","Det är mer sammanlänkat med faktagranskande medier","Det är mindre polariserat","Det har färre lyssnare totalt"],
+   correct:0, explain:"Författarna kallar det \u201casymmetrisk polarisering\u201d — höger-ekosystemet refererar mest till sig självt."},
+  {q:"Vad menas med \u201cpropagandans återkopplingsloop\u201d?",
+   opts:["Slumpmässig spridning av felaktig information","Att elit och media bekräftar publikens föreställningar och samtidigt misskrediterar andra källor, vilket sänker förtroendet för dem","Att sociala medier algoritmiskt boostar allt innehåll lika mycket","En loop där journalister faktagranskar varandra"],
+   correct:1, explain:"Loopen bygger på ömsesidig bekräftelse mellan publik och avsändare, kombinerat med misstro mot alla andra källor."},
+  {q:"Vilket kapitel handlar om Breitbart och Trumpkampanjen?",
+   opts:["\u201cImmigration and Islamophobia: Breitbart and the Trump Party\u201d","\u201cThe Fox Diet\u201d","\u201cEpistemic Crisis\u201d","\u201cMammon's Algorithm\u201d"],
+   correct:0, explain:"Kapitel 4 i boken, en del av avsnittet \u201cDynamics of Network Propaganda\u201d."},
+  {q:"Vilken tidsperiod täcker studien i boken?",
+   opts:["Enbart valnatten 2016","Från april 2015 till ett år efter Trumps tillträde","2020–2021","Hela 2000-talet"],
+   correct:1, explain:"Studien följer hela valcykeln och det första presidentåret, för att kunna se mönster över tid."},
+  {q:"Vad definierar boken som \u201cbullshit\u201d?",
+   opts:["Kommunikation från aktörer som inte bryr sig om sanningshalten, bara om effekten","Medvetna lögner enbart från utländska regeringar","Satir och humor","Faktagranskade nyheter"],
+   correct:0, explain:"Begreppet skiljer sig från ren lögn genom att avsändaren är likgiltig inför sanningen, inte nödvändigtvis medvetet ljugande."},
+  {q:"Vem är Yochai Benkler?",
+   opts:["Professor vid Harvard Law School och medgrundare av Berkman Klein Center","Redaktör på BuzzFeed News","Grundare av Facebook","Chef för Fox News"],
+   correct:0, explain:"Craig Silverman (BuzzFeed) och Emily Bell (Tow Center) medverkade i panelen, men det är Benkler som är medförfattare till boken."},
+  {q:"Vad menar boken krävs för att bryta propagandans återkopplingsloop?",
+   opts:["Enbart bättre AI-modereringsverktyg","En serie politiska/institutionella förändringar, inklusive valnederlag som tvingar fram omställning","Att stänga ner alla sociala medier","Loopen läker sig själv utan åtgärder"],
+   correct:1, explain:"Författarna är tydliga med att lösningen är politisk och institutionell, inte i första hand teknisk."},
+  {q:"Vilket sammanhang kommer YouTube-videon ifrån?",
+   opts:["En bokreleasepanel på Columbia Journalism School 2018","En kongressutfrågning","En TED-talk","Ett Fox News-program"],
+   correct:0, explain:"Evenemanget arrangerades av Tow Center for Digital Journalism i samband med bokens utgivning."},
+  {q:"Vad är särskilt med bokens tillgänglighet?",
+   opts:["Den är öppet tillgänglig (open access) under CC BY-NC-ND-licens","Den finns bara som ljudbok","Den är hemligstämplad","Den kostar 500 dollar och finns bara i tryck"],
+   correct:0, explain:"Det gör den ovanligt lätt att använda som kurslitteratur — hela texten går att läsa gratis via Oxford Academic."}
+];
+
+let cardIdx = 0, cardFlipped = false;
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+let activeTab = 'cards';
+
+function render(){
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===activeTab));
+  const m = document.getElementById('main');
+  if(activeTab==='cards') m.innerHTML = renderCards();
+  if(activeTab==='quiz') m.innerHTML = renderQuiz();
+  if(activeTab==='diagram') m.innerHTML = renderDiagram();
+  attach();
+}
+
+function renderCards(){
+  const c = CARDS[cardIdx];
+  return `
+  <div class="panel">
+    <div class="progress" style="margin-bottom:12px;">Kort ${cardIdx+1} / ${CARDS.length}</div>
+    <div class="card-wrap">
+      <div class="card ${cardFlipped?'flipped':''}" id="flipcard">
+        <div class="face front"><span class="label">BEGREPP</span><div class="txt">${c.front}</div></div>
+        <div class="face back"><span class="label">FÖRKLARING</span><div class="txt">${c.back}</div></div>
+      </div>
+    </div>
+    <p class="hint" style="text-align:center;">Klicka på kortet för att vända det.</p>
+    <div class="card-nav">
+      <button class="btn" id="card-prev">&larr; Föregående</button>
+      <button class="btn primary" id="card-next">Nästa &rarr;</button>
+    </div>
+  </div>`;
+}
+
+function renderQuiz(){
+  if(quizIdx >= QUIZ.length){
+    const pct = Math.round(quizScore/QUIZ.length*100);
+    return `
+    <div class="panel score-box">
+      <div class="progress">Klart!</div>
+      <div class="big">${quizScore} / ${QUIZ.length}</div>
+      <p>${pct}% rätt</p>
+      <button class="btn primary" id="quiz-restart">Kör igen</button>
+    </div>`;
+  }
+  const q = QUIZ[quizIdx];
+  return `
+  <div class="panel">
+    <div class="q-progress">Fråga ${quizIdx+1} / ${QUIZ.length} · Poäng: ${quizScore}</div>
+    <div class="q-text">${q.q}</div>
+    ${q.opts.map((o,i)=>`<button class="opt" data-opt="${i}">${o}</button>`).join('')}
+    <div id="quiz-explain"></div>
+  </div>`;
+}
+
+function renderDiagram(){
+  return `
+  <div class="panel diagram-panel">
+    <h3 style="margin-bottom:14px;">Det asymmetriska medieekosystemet</h3>
+    <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- left/center cluster: dense, interconnected -->
+      ${(()=>{ 
+        const pts=[[120,60],[170,90],[90,120],[150,150],[210,110],[70,170],[190,190],[130,210]];
+        let lines='';
+        for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+          if(Math.random()>0.55) lines += `<line x1="${pts[i][0]}" y1="${pts[i][1]}" x2="${pts[j][0]}" y2="${pts[j][1]}" stroke="#5FB3B3" stroke-opacity="0.35" stroke-width="1"/>`;
+        }
+        const nodes = pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6" fill="#5FB3B3"/>`).join('');
+        return lines+nodes;
+      })()}
+      <text x="140" y="255" fill="#5FB3B3" font-family="Oswald" font-size="15" text-anchor="middle">Vänster / center</text>
+      <text x="140" y="272" fill="#9B9EA6" font-family="Inter" font-size="11" text-anchor="middle">tätt sammanlänkat, delar källor</text>
+
+      <!-- right cluster: sparse, insular, hub-and-spoke to one hub -->
+      <circle cx="540" cy="120" r="9" fill="#E0A458"/>
+      ${[[480,70],[600,70],[470,150],[610,160],[540,190]].map(p=>`
+        <line x1="540" y1="120" x2="${p[0]}" y2="${p[1]}" stroke="#E0A458" stroke-opacity="0.5" stroke-width="1.5"/>
+        <circle cx="${p[0]}" cy="${p[1]}" r="5" fill="#E0A458"/>`).join('')}
+      <line x1="230" y1="130" x2="470" y2="125" stroke="#4A4A50" stroke-width="1" stroke-dasharray="3,4"/>
+      <text x="540" y="255" fill="#E0A458" font-family="Oswald" font-size="15" text-anchor="middle">Höger</text>
+      <text x="540" y="272" fill="#9B9EA6" font-family="Inter" font-size="11" text-anchor="middle">isolerat kring få nav (Fox, Breitbart)</text>
+    </svg>
+    <p class="diagram-caption">Schematisk illustration av bokens huvudfynd: vänster- och centermedier länkar tätt till varandra och till faktagranskande institutioner, medan höger-ekosystemet är format som ett fåtal starka nav med svag koppling utåt.</p>
+  </div>
+
+  <div class="panel diagram-panel">
+    <h3 style="margin-bottom:14px;">Propagandans återkopplingsloop</h3>
+    <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#E0A458"/></marker>
+      </defs>
+      <circle cx="300" cy="150" r="115" fill="none" stroke="#2A2C32" stroke-width="1"/>
+      <g font-family="Inter" font-size="12.5" fill="#F0EFEA">
+        <rect x="230" y="10" width="140" height="46" rx="2" fill="#1D1F24" stroke="#E0A458"/>
+        <text x="300" y="30" text-anchor="middle">Media/elit bekräftar</text>
+        <text x="300" y="45" text-anchor="middle">publikens tro</text>
+
+        <rect x="430" y="105" width="150" height="46" rx="2" fill="#1D1F24" stroke="#E0A458"/>
+        <text x="505" y="125" text-anchor="middle">Varnar för andra</text>
+        <text x="505" y="140" text-anchor="middle">medier som partiska</text>
+
+        <rect x="360" y="230" width="150" height="46" rx="2" fill="#1D1F24" stroke="#E0A458"/>
+        <text x="435" y="250" text-anchor="middle">Minskat förtroende</text>
+        <text x="435" y="265" text-anchor="middle">för andra källor</text>
+
+        <rect x="90" y="230" width="150" height="46" rx="2" fill="#1D1F24" stroke="#E0A458"/>
+        <text x="165" y="250" text-anchor="middle">Ökad exponering för</text>
+        <text x="165" y="265" text-anchor="middle">bekräftande källor</text>
+
+        <rect x="20" y="105" width="150" height="46" rx="2" fill="#1D1F24" stroke="#E0A458"/>
+        <text x="95" y="125" text-anchor="middle">Publiken känner sig</text>
+        <text x="95" y="140" text-anchor="middle">bekräftad i sin tro</text>
+      </g>
+      <path d="M370,35 A115,115 0 0,1 500,108" fill="none" stroke="#E0A458" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <path d="M500,151 A115,115 0 0,1 440,232" fill="none" stroke="#E0A458" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <path d="M370,262 A115,115 0 0,1 175,262" fill="none" stroke="#E0A458" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <path d="M105,232 A115,115 0 0,1 65,150" fill="none" stroke="#E0A458" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <path d="M95,105 A115,115 0 0,1 232,33" fill="none" stroke="#E0A458" stroke-width="1.5" marker-end="url(#arrow)"/>
+    </svg>
+    <p class="diagram-caption">Loopen förstärker sig själv: varje varv gör publiken mer mottaglig för bekräftande källor och mer misstrogen mot alla andra.</p>
+  </div>`;
+}
+
+function attach(){
+  document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click', ()=>{
+    activeTab = b.dataset.tab;
+    if(activeTab==='quiz'){ quizIdx=0; quizScore=0; quizAnswered=false; }
+    render();
+  }));
+
+  const flip = document.getElementById('flipcard');
+  if(flip) flip.addEventListener('click', ()=>{ cardFlipped=!cardFlipped; render(); });
+  const prev = document.getElementById('card-prev');
+  if(prev) prev.addEventListener('click', ()=>{ cardIdx=(cardIdx-1+CARDS.length)%CARDS.length; cardFlipped=false; render(); });
+  const next = document.getElementById('card-next');
+  if(next) next.addEventListener('click', ()=>{ cardIdx=(cardIdx+1)%CARDS.length; cardFlipped=false; render(); });
+
+  document.querySelectorAll('.opt').forEach(btn=>btn.addEventListener('click', ()=>{
+    if(quizAnswered) return;
+    quizAnswered = true;
+    const chosen = Number(btn.dataset.opt);
+    const q = QUIZ[quizIdx];
+    document.querySelectorAll('.opt').forEach((b,i)=>{
+      if(i===q.correct) b.classList.add('correct');
+      else if(i===chosen) b.classList.add('wrong');
+    });
+    if(chosen===q.correct) quizScore++;
+    document.getElementById('quiz-explain').innerHTML = `<div class="explain">${q.explain}</div><button class="btn primary" id="quiz-next" style="margin-top:14px;">Nästa fråga &rarr;</button>`;
+    document.getElementById('quiz-next').addEventListener('click', ()=>{ quizIdx++; quizAnswered=false; render(); });
+  }));
+  const restart = document.getElementById('quiz-restart');
+  if(restart) restart.addEventListener('click', ()=>{ quizIdx=0; quizScore=0; quizAnswered=false; render(); });
+}
+
+render();
+</script>
+</body>
+</html>
